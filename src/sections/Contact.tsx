@@ -26,7 +26,12 @@ const contactSchema = z.object({
     .trim()
     .min(20, 'Explica tu proyecto con al menos 20 caracteres.')
     .max(1200, 'El mensaje no puede superar 1200 caracteres.'),
-  privacy: z.boolean().refine((value) => value, 'Debes aceptar la politica de privacidad.')
+  privacy: z.boolean().refine((value) => value, 'Debes aceptar la politica de privacidad.'),
+  website: z
+    .string()
+    .trim()
+    .optional()
+    .refine((value) => !value, 'Solicitud no valida.')
 });
 
 type ContactFormValues = z.infer<typeof contactSchema>;
@@ -67,6 +72,8 @@ const contactInfo: ContactItem[] = [
 const CONTACT_ENDPOINT =
   import.meta.env.VITE_CONTACT_FORM_ENDPOINT?.trim() || 'https://formsubmit.co/ajax/hola@bagestech.com';
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER?.trim() || '34123456789';
+const LAST_SUBMIT_STORAGE_KEY = 'bagestech_last_submit_ts';
+const SUBMIT_COOLDOWN_MS = 20000;
 
 export default function Contact() {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
@@ -87,7 +94,8 @@ export default function Contact() {
       phone: '',
       projectType: '',
       message: '',
-      privacy: true
+      privacy: true,
+      website: ''
     }
   });
   const [nameValue, emailValue, phoneValue, projectTypeValue, messageValue] = watch([
@@ -120,6 +128,17 @@ export default function Contact() {
     setSubmitError('');
 
     try {
+      if (values.website) {
+        throw new Error('Solicitud no valida.');
+      }
+
+      if (typeof window !== 'undefined') {
+        const lastSubmit = Number(window.localStorage.getItem(LAST_SUBMIT_STORAGE_KEY) || '0');
+        if (lastSubmit && Date.now() - lastSubmit < SUBMIT_COOLDOWN_MS) {
+          throw new Error('Espera unos segundos antes de volver a enviar.');
+        }
+      }
+
       const response = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -132,6 +151,7 @@ export default function Contact() {
           phone: values.phone,
           projectType: values.projectType,
           message: values.message,
+          _honey: values.website || '',
           _subject: `Nuevo presupuesto de ${values.name}`,
           _captcha: 'false'
         })
@@ -144,13 +164,17 @@ export default function Contact() {
       }
 
       setSubmitStatus('success');
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(LAST_SUBMIT_STORAGE_KEY, String(Date.now()));
+      }
       reset({
         name: '',
         email: '',
         phone: '',
         projectType: '',
         message: '',
-        privacy: true
+        privacy: true,
+        website: ''
       });
     } catch (error) {
       setSubmitStatus('error');
@@ -253,6 +277,10 @@ export default function Contact() {
               <Card className="bg-white border-0 shadow-2xl">
                 <CardContent className="p-8 md:p-10">
                   <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6" aria-describedby="contact-status">
+                    <div className="sr-only" aria-hidden="true">
+                      <Label htmlFor="website">Sitio web</Label>
+                      <Input id="website" tabIndex={-1} autoComplete="off" {...register('website')} />
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="name" className="text-slate-700 font-medium">
