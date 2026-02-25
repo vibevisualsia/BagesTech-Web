@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>BagesTech</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#fde047" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)" />
+  <path
+    d="M18 14h16c8 0 13 4 13 11 0 4-2 7-6 9 5 2 8 5 8 10 0 8-6 12-15 12H18V14zm11 16h6c3 0 5-1 5-4s-2-4-5-4h-6v8zm0 18h7c4 0 6-2 6-5s-2-5-6-5h-7v10z"
+    fill="url(#accent)"
+  />
+</svg>
