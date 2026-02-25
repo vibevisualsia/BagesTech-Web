@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { label: 'Servicios', href: '#servicios' },
+  { label: 'Casos', href: '#portfolio' },
   { label: 'Proceso', href: '#proceso' },
-  { label: 'Portfolio', href: '#portfolio' },
   { label: 'Precios', href: '#precios' },
-  { label: 'Tecnologías', href: '#tecnologias' },
   { label: 'FAQ', href: '#faq' }
 ];
 
@@ -19,22 +18,25 @@ export default function Navigation() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-      
-      const sections = navLinks.map(link => link.href.slice(1));
-      for (const section of sections.reverse()) {
+      setIsScrolled(window.scrollY > 80);
+
+      const sections = [...navLinks.map((link) => link.href.slice(1))].reverse();
+      for (const section of sections) {
         const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 150) {
-            setActiveSection(section);
-            break;
-          }
+        if (!element) {
+          continue;
+        }
+
+        const rect = element.getBoundingClientRect();
+        if (rect.top <= 150) {
+          setActiveSection(section);
+          break;
         }
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -46,20 +48,17 @@ export default function Navigation() {
 
   return (
     <>
-      <motion.nav 
+      <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled 
-            ? 'bg-white/95 backdrop-blur-xl shadow-lg py-2' 
-            : 'bg-transparent py-4'
+          isScrolled ? 'bg-white/95 backdrop-blur-xl shadow-lg py-2' : 'bg-transparent py-4'
         }`}
       >
         <div className="container-pro">
           <div className="flex items-center justify-between">
-            {/* Logo */}
-            <motion.a 
+            <motion.a
               href="#"
               onClick={(e) => {
                 e.preventDefault();
@@ -70,9 +69,9 @@ export default function Navigation() {
               className="flex items-center gap-3"
               aria-label="Ir al inicio"
             >
-              <img 
-                src="/images/logo.png" 
-                alt="BagesTech" 
+              <img
+                src="/images/logo.png"
+                alt="BagesTech"
                 width={224}
                 height={56}
                 loading="eager"
@@ -82,44 +81,47 @@ export default function Navigation() {
               />
             </motion.a>
 
-            {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link, index) => (
-                <motion.a
-                  key={index}
-                  href={link.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollToSection(link.href);
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  aria-current={activeSection === link.href.slice(1) ? 'page' : undefined}
-                  className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
-                    isScrolled ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' : 'text-white/80 hover:text-white hover:bg-white/10'
-                  } ${activeSection === link.href.slice(1) ? (isScrolled ? 'text-blue-600 bg-blue-50' : 'text-white bg-white/20') : ''}`}
-                >
-                  {link.label}
-                </motion.a>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = activeSection === link.href.slice(1);
+
+                return (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(link.href);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
+                      isScrolled
+                        ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                    } ${isActive ? (isScrolled ? 'text-blue-600 bg-blue-50' : 'text-white bg-white/20') : ''}`}
+                  >
+                    {link.label}
+                  </motion.a>
+                );
+              })}
             </div>
 
-            {/* CTA Button */}
             <div className="hidden lg:block">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button 
+                <Button
                   onClick={() => scrollToSection('#contacto')}
                   className={`rounded-full px-6 py-5 font-semibold transition-all duration-300 ${
-                    isScrolled 
-                      ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500 shadow-lg shadow-blue-500/30' 
+                    isScrolled
+                      ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500 shadow-lg shadow-blue-500/30'
                       : 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-400 hover:to-yellow-400 shadow-lg shadow-amber-500/30'
                   }`}
                 >
-                  Contactar
+                  Solicitar presupuesto
                 </Button>
               </motion.div>
             </div>
 
-            {/* Mobile Menu Button */}
             <motion.button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -137,24 +139,23 @@ export default function Navigation() {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-40 lg:hidden"
           >
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-950/95 backdrop-blur-xl"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <motion.div 
+            <motion.div
               id="mobile-menu-panel"
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -165,7 +166,7 @@ export default function Navigation() {
               <div className="space-y-2">
                 {navLinks.map((link, index) => (
                   <motion.a
-                    key={index}
+                    key={link.href}
                     href={link.href}
                     onClick={(e) => {
                       e.preventDefault();
@@ -181,11 +182,11 @@ export default function Navigation() {
                 ))}
                 <div className="pt-4 border-t border-slate-100 mt-4">
                   <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button 
+                    <Button
                       onClick={() => scrollToSection('#contacto')}
                       className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-6 rounded-xl font-semibold"
                     >
-                      Contactar
+                      Solicitar presupuesto
                     </Button>
                   </motion.div>
                 </div>

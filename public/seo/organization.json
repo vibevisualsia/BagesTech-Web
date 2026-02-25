@@ -1,0 +1,14 @@
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "BagesTech",
+  "url": "https://bages-tech-web.vercel.app/",
+  "email": "hola@bagestech.com",
+  "telephone": "+34123456789",
+  "areaServed": "ES",
+  "serviceType": [
+    "Diseno web",
+    "Desarrollo web",
+    "Optimizacion de conversion"
+  ]
+}

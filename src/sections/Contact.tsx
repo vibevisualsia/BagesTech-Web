@@ -20,12 +20,8 @@ const contactSchema = z.object({
     .trim()
     .optional()
     .refine((value) => !value || /^[+0-9()\s-]{7,20}$/.test(value), 'Telefono no valido.'),
-  projectType: z.string().trim().min(1, 'Selecciona el tipo de proyecto.'),
-  message: z
-    .string()
-    .trim()
-    .min(20, 'Explica tu proyecto con al menos 20 caracteres.')
-    .max(1200, 'El mensaje no puede superar 1200 caracteres.'),
+  projectType: z.string().trim().optional(),
+  message: z.string().trim().min(12, 'Explica tu proyecto con al menos 12 caracteres.').max(1200, 'El mensaje no puede superar 1200 caracteres.'),
   privacy: z.boolean().refine((value) => value, 'Debes aceptar la politica de privacidad.'),
   website: z
     .string()
@@ -60,7 +56,7 @@ const contactInfo: ContactItem[] = [
   {
     icon: MapPin,
     label: 'Ubicacion',
-    value: 'Espana (trabajo remoto)'
+    value: 'Espana (servicio remoto)'
   },
   {
     icon: Clock,
@@ -69,8 +65,7 @@ const contactInfo: ContactItem[] = [
   }
 ];
 
-const CONTACT_ENDPOINT =
-  import.meta.env.VITE_CONTACT_FORM_ENDPOINT?.trim() || 'https://formsubmit.co/ajax/hola@bagestech.com';
+const CONTACT_ENDPOINT = import.meta.env.VITE_CONTACT_FORM_ENDPOINT?.trim() || 'https://formsubmit.co/ajax/hola@bagestech.com';
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER?.trim() || '34123456789';
 const LAST_SUBMIT_STORAGE_KEY = 'bagestech_last_submit_ts';
 const SUBMIT_COOLDOWN_MS = 20000;
@@ -98,6 +93,7 @@ export default function Contact() {
       website: ''
     }
   });
+
   const [nameValue, emailValue, phoneValue, projectTypeValue, messageValue] = watch([
     'name',
     'email',
@@ -202,7 +198,7 @@ export default function Contact() {
       </div>
 
       <div className="container-pro relative">
-        <div className="text-center mb-20">
+        <div className="text-center mb-16">
           <FadeIn>
             <span className="inline-block px-5 py-2.5 rounded-full bg-amber-500/20 text-amber-400 text-sm font-semibold mb-6 tracking-wide uppercase backdrop-blur-sm border border-amber-500/30">
               Contacto
@@ -210,12 +206,12 @@ export default function Contact() {
           </FadeIn>
 
           <TextReveal>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">Hablemos de tu proyecto</h2>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">Hablemos de tu objetivo</h2>
           </TextReveal>
 
           <FadeIn delay={0.3}>
             <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
-              Cuentanos tu idea y te enviamos una propuesta personalizada en menos de 24 horas.
+              Cuentanos que quieres conseguir y te devolvemos una propuesta clara en menos de 24 horas.
             </p>
           </FadeIn>
         </div>
@@ -223,8 +219,8 @@ export default function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
           <div className="lg:col-span-1">
             <StaggerContainer staggerDelay={0.1} className="space-y-4">
-              {contactInfo.map((item, index) => (
-                <StaggerItem key={index}>
+              {contactInfo.map((item) => (
+                <StaggerItem key={item.label}>
                   <motion.div whileHover={{ x: 5 }} transition={{ duration: 0.2 }}>
                     <Card className="bg-white/5 backdrop-blur-xl border-white/10 hover:bg-white/10 transition-colors">
                       <CardContent className="p-5 flex items-center gap-4">
@@ -258,8 +254,8 @@ export default function Contact() {
                     <MessageCircle className="w-6 h-6 text-green-400" aria-hidden="true" />
                   </div>
                   <div>
-                    <div className="text-green-400 font-semibold">Respuesta rapida</div>
-                    <div className="text-green-300/80 text-sm">Tambien atendemos por WhatsApp</div>
+                    <div className="text-green-400 font-semibold">Canal directo</div>
+                    <div className="text-green-300/80 text-sm">Respuesta rapida por WhatsApp</div>
                   </div>
                 </div>
                 <Button asChild className="w-full mt-4 bg-green-600 hover:bg-green-500 text-white rounded-xl py-6">
@@ -281,6 +277,7 @@ export default function Contact() {
                       <Label htmlFor="website">Sitio web</Label>
                       <Input id="website" tabIndex={-1} autoComplete="off" {...register('website')} />
                     </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="name" className="text-slate-700 font-medium">
@@ -345,7 +342,7 @@ export default function Contact() {
 
                       <div className="space-y-2">
                         <Label htmlFor="projectType" className="text-slate-700 font-medium">
-                          Tipo de proyecto *
+                          Tipo de proyecto
                         </Label>
                         <select
                           id="projectType"
@@ -354,12 +351,10 @@ export default function Contact() {
                           aria-describedby={errors.projectType ? 'projectType-error' : undefined}
                           {...register('projectType')}
                         >
-                          <option value="">Selecciona una opcion</option>
+                          <option value="">Aun no lo tengo claro</option>
                           <option value="web-corporativa">Web corporativa</option>
                           <option value="ecommerce">Tienda online</option>
                           <option value="landing">Landing page</option>
-                          <option value="portfolio">Portfolio</option>
-                          <option value="blog">Blog</option>
                           <option value="otro">Otro</option>
                         </select>
                         {errors.projectType ? (
@@ -372,11 +367,11 @@ export default function Contact() {
 
                     <div className="space-y-2">
                       <Label htmlFor="message" className="text-slate-700 font-medium">
-                        Cuentanos sobre tu proyecto *
+                        Que quieres conseguir? *
                       </Label>
                       <Textarea
                         id="message"
-                        placeholder="Objetivos, plazos, presupuesto aproximado y cualquier detalle clave..."
+                        placeholder="Cuantos leads quieres, que plazo manejas y en que punto estas ahora."
                         rows={6}
                         className="resize-none rounded-xl border-slate-300 focus-visible:border-blue-600"
                         aria-invalid={Boolean(errors.message)}
@@ -412,7 +407,7 @@ export default function Contact() {
                       {submitStatus === 'success' ? (
                         <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-800">
                           <CheckCircle2 className="w-5 h-5 mt-0.5" aria-hidden="true" />
-                          <p>Mensaje enviado correctamente. Revisaremos tu solicitud y responderemos en menos de 24 horas.</p>
+                          <p>Mensaje enviado correctamente. Te respondemos en menos de 24 horas.</p>
                         </div>
                       ) : null}
 
@@ -443,7 +438,7 @@ export default function Contact() {
                             </span>
                           ) : (
                             <span className="flex items-center gap-3">
-                              Enviar presupuesto
+                              Enviar solicitud
                               <Send className="w-5 h-5" aria-hidden="true" />
                             </span>
                           )}
